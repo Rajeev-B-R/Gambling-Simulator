@@ -2,18 +2,52 @@
 
 stake=100
 bet=1
-max=$(( $stake + $(( ($stake*50)/100)) ));
-min=$((  $stake - $(( ($stake*50)/100)) ));
+maxDays=20
+wins=0
+loss=0
+winDays=0
+loseDays=0
+stakePercent=$((((stake*50))/100))
+dayStake=$stake
 
-while [ $stake -gt $min ] && [ $stake -lt $max ]
-do
-	result=$(( RANDOM%2 ))
-	if [ $result -eq 1 ]
+dailyBetCalc(){
+	stake=100
+	dayStake=$stake
+	stakePercent=$((((stake*50))/100))
+	while [ $stake -gt $((dayStake-stakePercent)) ] && [ $stake -lt $((dayStake+stakePercent)) ]
+	do
+		result=$((RANDOM%2))
+		if [ $result -eq 1 ]
+		then
+			stake=$((stake + bet))
+			(( wins++ ))
+		else
+			stake=$((stake - bet))
+			(( loss++ ))
+		fi
+	done
+	
+	if [ $wins -gt $loss ]
 	then
-		stake=$((stake + bet))
+		(( winDays++ ))
 	else
-		stake=$((stake - bet))
+		(( loseDays++ ))
 	fi
-done
+}
 
-echo "That's all for today. Resigning..."
+finalStakeCalc(){
+	if [ $winDays -gt $loseDays ]
+	then
+		winStake=$((winDays*stakePercent))
+		echo "Final Win Stake: $winStake"
+	else
+		loseStake=$((loseDays*stakePercent))
+		echo "Final Lose Stake: $loseStake"
+	fi
+}
+
+for (( i=0;  i<maxDays; i++ ))
+do
+dailyBetCalc
+done
+finalStakeCalc
