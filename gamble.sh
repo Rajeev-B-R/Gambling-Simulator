@@ -2,7 +2,7 @@
 
 stake=100
 bet=1
-maxDays=20
+maxDays=30
 wins=0
 loss=0
 winDays=0
@@ -39,10 +39,10 @@ finalStakeCalc(){
 	if [ $winDays -gt $loseDays ]
 	then
 		winStake=$((winDays*stakePercent))
-		echo "Final Win Stake: $winStake"
+		echo "Gambler won by $winDays days and winning amount is: $winStake"
 	else
 		loseStake=$((loseDays*stakePercent))
-		echo "Final Lose Stake: $loseStake"
+		echo "Gambler won by $loseDays days and loosing amount is: $loseStake"
 	fi
 }
 
