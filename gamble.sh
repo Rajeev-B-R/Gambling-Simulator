@@ -3,13 +3,13 @@
 stake=100
 bet=1
 maxDays=30
+
 winDays=0
 loseDays=0
-count=0
+count=1
+
 declare -A arrayLucky
 declare -A arrayUnlucky
-stakePercent=$((((stake*50))/100))
-dayStake=$stake
 
 dailyBetCalc(){
         stake=100
@@ -31,17 +31,17 @@ dailyBetCalc(){
         done
 
         if [ $stake -gt $dayStake ]
-	    then
-		    arrayLucky[$count]=$wins
-		    arrayUnlucky[$count]=$loss
-		    ((count++))
-		    ((winDays++))
-	    else
-		    arrayLucky[$count]=$wins
-            arrayUnlucky[$count]=$loss
-            ((count++))
-		    ((loseDays++))
-	    fi
+	then
+		arrayLucky[$count]=$wins
+		arrayUnlucky[$count]=$loss
+		((count++))
+		((winDays++))
+	else
+		arrayLucky[$count]=$wins
+            	arrayUnlucky[$count]=$loss
+                ((count++))
+		((loseDays++))
+	fi
 }
 
 finalStakeCalc(){
@@ -56,7 +56,7 @@ finalStakeCalc(){
 }
 
 luckyDay(){
-lucky=${arrayLucky[1]}
+lucky=${arrayLucky[0]}
 for i in ${arrayLucky[@]}
 do
      if [[ $i -gt $lucky ]]
@@ -70,12 +70,11 @@ do
         ((countj++))
         if [[ $i -eq $lucky ]]
         then
-
                 echo "Lucky day: $countj with win of $lucky times"
         fi
 done
 
-unlucky=${arrayUnlucky[1]}
+unlucky=${arrayUnlucky[0]}
 for i in ${arrayUnlucky[@]}
 do
      if [[ $i -gt $unlucky ]]
@@ -89,10 +88,31 @@ do
 	((countk++))
 	if [[ $i -eq $unlucky ]]
 	then
-
 		echo "Unlucky day: $countk with loss of $unlucky times"
 	fi
 done
+}
+
+nextMonth(){
+	if [ $winDays -gt $loseDays ]
+	then
+		echo "Congratulations! You can play for next month. Enter 0 to continue or 1 to stop"
+		read choice
+		if [ $choice -eq 0 ]
+		then
+			for (( i=0;i<30;i++ ))
+			do
+				dailyBetCalc
+			done
+			finalStakeCalc
+			luckyDay
+			nextMonth
+		else
+			echo "Thanks for playing!"
+		fi
+	else
+		echo "Bad luck! You have lost. You cannot play for next month"
+	fi
 }
 
 for (( i=0;  i<maxDays; i++ ))
@@ -101,3 +121,4 @@ do
 done
 finalStakeCalc
 luckyDay
+nextMonth
